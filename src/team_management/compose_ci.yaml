@@ -7,6 +7,8 @@ services:
     extends:
       file: base.yaml
       service: db
+    env_file:
+      - .env.test
     volumes:
       - db_data_test:/var/lib/postgresql/data
 
