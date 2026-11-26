@@ -7,6 +7,8 @@ services:
     extends:
       file: base.yaml
       service: db
+    env_file:
+      - .env
     volumes:
       - db_data_prod:/var/lib/postgresql/data
 
@@ -21,6 +23,8 @@ services:
     extends:
       file: base.yaml
       service: fastapi
+    env_file:
+      - .env
     environment:
       IS_TEST_DB: "False"
     build:
