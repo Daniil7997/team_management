@@ -34,7 +34,7 @@ services:
       && ruff format --check . \
       && mypy . \
       && alembic upgrade head \
-      && python -m pytest -s -v --cov=app --cov-report=term-missing"
+      && python -m pytest -s -v --cov=app --cov-report=term-missing --junitxml=test-results.xml"
     ports: 
       - "8000:8000"
 

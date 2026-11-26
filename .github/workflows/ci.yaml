@@ -75,6 +75,7 @@ jobs:
         with:
           working-directory: ./src/team_management
           output: coverage.svg
+          color: green
 
       - name: Prepare Pages artifact
         if: github.ref == 'refs/heads/main'
