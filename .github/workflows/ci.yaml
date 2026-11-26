@@ -65,7 +65,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: ./src/team_management
         run: |
-          CONTAINER_ID=$(docker compose -f compose_ci.yaml --env-file .env.test ps -q fastapi)
+          CONTAINER_ID=$(docker compose -f compose_ci.yaml --env-file .env.test ps -a -q fastapi)
           test -n "$CONTAINER_ID"
           docker cp "$CONTAINER_ID":/project/.coverage .coverage
 
