@@ -44,7 +44,7 @@ def upgrade():
                 "id": uuid.uuid7(),
                 "name": "Admin",
                 "email": "admin@example.com",
-                "password": settings.app.hashed_admin_password,
+                "password": settings.app.HASHED_ADMIN_PASSWORD,
                 "is_admin": True,
                 "is_active": True,
                 "created_at": now,
