@@ -32,6 +32,11 @@ dev = [
     "ruff>=0.17.2",
 ]
 
+
+[tool.coverage.run]
+relative_files = true
+
+
 [tool.ruff]
 # лимит длины строки
 line-length = 79
@@ -64,6 +69,7 @@ ignore = [
     "class-as-data-structure",
     "yield-in-context-manager-in-async-generator",
 ]
+
 
 [tool.mypy]
 mypy_path = "."
