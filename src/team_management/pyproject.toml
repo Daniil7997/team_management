@@ -1,0 +1,76 @@
+[project]
+name = "team-management"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.20.1",
+    "alembic-postgresql-enum>=1.11.1",
+    "cryptography>=50.0.2",
+    "fastapi>=0.162.4",
+    "psycopg[binary]>=3.3.8",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic[email]>=2.14.3",
+    "pydantic-settings>=2.16.2",
+    "pyjwt>=2.15.1",
+    "redis>=8.1.0",
+    "sqlalchemy[asyncio]>=2.1.8",
+    "uvicorn[standard]>=0.54.0",
+    "starlette-admin>=1.0.3",
+    "httpx>=0.28.1",
+    "python-json-logger>=4.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "asgi-lifespan>=2.1.0",
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.2",
+]
+
+[tool.ruff]
+# лимит длины строки
+line-length = 79
+extend-exclude = [
+    "migrations/versions",
+]
+
+
+[tool.ruff.lint]
+# включаем правило проверки длины строк
+# и правила проверки отсупов
+preview = true
+
+# E, F — базовые ошибки и стиль
+# I — сортировка импортов
+# B — поиск потенциальных багов
+# UP — современный синтаксис Python
+# SIM — упрощение кода
+# ASYNC — ошибки в асинхронном коде
+# FAST — лучшие практики для FastAPI
+# RUF — фирменные проверки Ruff
+select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC", "FAST", "RUF"]
+
+# Исключаем правила, которые могут конфликтовать с автоформаттером
+ignore = [
+    "indentation-with-invalid-multiple",
+    "indentation-with-invalid-multiple-comment",
+    "over-indented",
+    "unused-async",
+    "class-as-data-structure",
+    "yield-in-context-manager-in-async-generator",
+]
+
+[tool.mypy]
+mypy_path = "."
+sqlite_cache = false
+explicit_package_bases = true
+exclude =  '^app/admin/'
+
+[[tool.mypy.overrides]]
+module = "app.admin.*"
+ignore_errors = true

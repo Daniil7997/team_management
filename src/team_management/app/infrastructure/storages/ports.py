@@ -1,0 +1,16 @@
+from typing import Protocol
+
+
+class _KeyValueStorageProtocol(Protocol):
+    async def connect(self) -> None: ...
+    async def close(self) -> None: ...
+
+    async def set(self, key: str, value: str, expire: int) -> None: ...
+
+
+class KeyValueReadableStorageProtocol(_KeyValueStorageProtocol, Protocol):
+    async def get(self, key: str) -> str | None: ...
+
+
+class KeyValueConsumableStorageProtocol(_KeyValueStorageProtocol, Protocol):
+    async def getdel(self, key: str) -> str | None: ...

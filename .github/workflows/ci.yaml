@@ -1,0 +1,109 @@
+name: Run Tests
+
+on:
+  push:
+    paths:
+      - 'src/team_management/**'
+  pull_request:
+    paths:
+      - 'src/team_management/**'
+  
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      HASHED_ADMIN_PASSWORD: ${{ secrets.HASHED_ADMIN_PASSWORD }}
+      PRIVATE_KEY_HEX: ${{ secrets.PRIVATE_KEY_HEX }}
+      
+      REDIS_HOST: ${{ vars.REDIS_HOST }}
+      REDIS_PORT: ${{ vars.REDIS_PORT }}
+      DB_NAME: ${{ vars.DB_NAME }}
+      DB_HOST: ${{ vars.DB_HOST }}
+      DB_PORT: ${{ vars.DB_PORT }}
+      DB_USER: ${{ vars.DB_USER }}
+      IS_TEST_DB: ${{ vars.IS_TEST_DB }}
+  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: create .env
+        working-directory: ./src/team_management
+        run: |
+          cat << EOF > .env.test
+          DB_PASSWORD=${DB_PASSWORD}
+          REDIS_PASSWORD=${REDIS_PASSWORD}
+          HASHED_ADMIN_PASSWORD=${HASHED_ADMIN_PASSWORD}
+          PRIVATE_KEY_HEX=${PRIVATE_KEY_HEX}
+          REDIS_HOST=${REDIS_HOST}
+          REDIS_PORT=${REDIS_PORT}
+          DB_NAME=${DB_NAME}
+          DB_HOST=${DB_HOST}
+          DB_PORT=${DB_PORT}
+          DB_USER=${DB_USER}         
+          IS_TEST_DB=${IS_TEST_DB}
+          EOF
+
+      - name: compose_ci.yaml up
+        working-directory: ./src/team_management
+        run: |
+          docker compose \
+            -f compose_ci.yaml \
+            --env-file .env.test \
+            up \
+            --build \
+            --abort-on-container-exit \
+            --exit-code-from fastapi
+
+      - name: Copy coverage file
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./src/team_management
+        run: |
+          CONTAINER_ID=$(docker compose -f compose_ci.yaml --env-file .env.test ps -q fastapi)
+          test -n "$CONTAINER_ID"
+          docker cp "$CONTAINER_ID":/project/.coverage .coverage
+
+      - name: Generate coverage badge
+        if: github.ref == 'refs/heads/main'
+        uses: tj-actions/coverage-badge-py@v2
+        with:
+          working-directory: ./src/team_management
+          output: coverage.svg
+
+      - name: Prepare Pages artifact
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p _site
+          cp src/team_management/coverage.svg _site/coverage.svg
+          echo '<!DOCTYPE html><html><body>Coverage badge</body></html>' > _site/index.html
+
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

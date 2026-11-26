@@ -1,0 +1,26 @@
+{% extends "@starlette-admin/login.html" %}
+
+{% block script %}
+    {{ super() }}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const label = document.querySelector(
+                'label[for="username"]'
+            );
+
+            if (label) {
+                label.textContent = "Email";
+            }
+
+            const input = document.querySelector(
+                'input[name="username"]'
+            );
+
+            if (input) {
+                input.type = "email";
+                input.autocomplete = "email";
+                input.placeholder = "Email";
+            }
+        });
+    </script>
+{% endblock %}

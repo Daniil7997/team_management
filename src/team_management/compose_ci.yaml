@@ -1,0 +1,47 @@
+name: team_management_test
+
+
+services:
+
+  db:
+    extends:
+      file: base.yaml
+      service: db
+    volumes:
+      - db_data_test:/var/lib/postgresql/data
+
+  redis:
+    extends:
+      file: base.yaml
+      service: redis
+    volumes:
+      - redis_data_test:/data
+
+  fastapi:
+    extends:
+      file: base.yaml
+      service: fastapi
+    env_file:
+      - .env.test
+    environment:
+      - PYTHONUNBUFFERED=1
+    build:
+      context: .
+      target: "test"
+    command: sh -c "ruff check . \
+      && ruff format --check . \
+      && mypy . \
+      && alembic upgrade head \
+      && python -m pytest -s -v --cov=app --cov-report=term-missing"
+    ports: 
+      - "8000:8000"
+
+
+volumes:
+  db_data_test:
+  redis_data_test:
+
+
+networks:
+  app_network:
+    driver: bridge
